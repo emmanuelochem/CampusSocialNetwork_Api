@@ -236,7 +236,8 @@ class AuthController extends Controller
                 $user = User::where(['phone'=> $request->phone])->first();
             Auth::login($user, true);
             $session_token = $user->createToken('Personal Access Token')->accessToken;
-                return response(['status'=> 'success', 'message'=> 'Login verification successful.', 'user'=>$user, 'token'=>$session_token], 200);
+            $user['token'] = $session_token;
+                return response(['status'=> 'success', 'message'=> 'Login verification successful.', 'user'=>$user,], 200);
             }
             return response(['status'=> 'error', 'message'=> 'Your login could not be verified - Invalid Pin'], 401);
         } catch (\Throwable $th) {

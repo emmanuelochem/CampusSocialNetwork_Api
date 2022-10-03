@@ -22,6 +22,14 @@ Broadcast::channel('home', function ($user) {
     return true;
  });
  
+
+ Broadcast::channel('online-channel', function ($user) {
+   // if (auth()->check()) {
+        return true;
+   // }
+ });
+
+
  Broadcast::channel('chat.{id}', function ($user, $id) {
      return true;
      //return (int) $user->id === 1;//(int) $id;

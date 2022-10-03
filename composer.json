@@ -16,7 +16,8 @@
         "laravel/tinker": "^2.5",
         "league/flysystem-aws-s3-v3": "^1.0",
         "twilio/sdk": "^6.40",
-        "zeevx/lara-termii": "^0.1.5"
+        "zeevx/lara-termii": "^0.1.5",
+      "ext-json": "*"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

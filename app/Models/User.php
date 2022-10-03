@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\DB;
+
 use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
@@ -40,7 +41,7 @@ class User extends Authenticatable
         'level','department',
         'password',
         'remember_token','updated_at',
-        'pivot',
+        'pivot','created_at'
     ];
 
     /**
@@ -66,7 +67,7 @@ class User extends Authenticatable
 
 
     protected $with = [
-        'levels', 'departments',
+        //'levels', 'departments',
     ];
 
 
@@ -89,12 +90,12 @@ class User extends Authenticatable
     /**
      * Check if the user followed by the authenticated user.
      *
-     * @return bool|null
+     * @return bool
      */
     public function getIsFollowedAttribute()
     {
         if ($this->is_self) {
-            return null;
+            return false;
         }
 
         return $this->followers()->whereKey(auth()->id())->exists();
@@ -104,12 +105,12 @@ class User extends Authenticatable
     /**
      * Check if the user followed by the authenticated user.
      *
-     * @return bool|null
+     * @return bool
      */
     public function getIsCrushAttribute()
     {
         if ($this->is_self) {
-            return null;
+            return false;
         }
 
         return $this->crushers()->whereKey(auth()->id())->exists();
@@ -129,7 +130,6 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Department::class, 'department');
     }
-
 
     /**
      * Get the followers of a user.
@@ -205,5 +205,26 @@ class User extends Authenticatable
             ->withPivot('created_at');
     }
 
+    /**
+     * Get the conversations for a user.
+     */
+    public function chats(): belongsToMany
+    {
+        return $this->belongsToMany(Chat::class);
+    }
+//
+   public function messages()
+   {
+       return $this->hasMany(Message::class);
+   }
 
+    /**
+     * Get the entity's notifications.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function notifications(): MorphMany
+    {
+        return $this->morphMany(Notification::class, 'notifiable')->latest();
+    }
 }

@@ -1,0 +1,72 @@
+<?php
+
+namespace App\Notifications;
+
+use App\Models\User;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Notifications\Messages\DatabaseMessage;
+use Illuminate\Notifications\Notification;
+
+class NotifyUponAction extends Notification implements ShouldBroadcast
+{
+    use Queueable;
+
+    /**
+     * Create a new notification instance.
+     *
+     * @param \App\Models\User  $user
+     * @param int  $action
+     * @param string  $url
+     * @return void
+     */
+    public function __construct(User $user, int $action, string $activity_id)
+    {
+        $this->user = $user;
+        $this->action = $action;
+        $this->activity_id = $activity_id;
+    }
+
+    /**
+     * Get the notification's delivery channels.
+     *
+     * @param  mixed  $notifiable
+     * @return array
+     */
+    public function via($notifiable)
+    {
+        return ['database', 'broadcast'];
+    }
+
+    /**
+     * Get the array representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return DatabaseMessage
+     */
+    public function toDatabase($notifiable)
+    {
+        return new DatabaseMessage([
+            'user' => $this->user->only(['nickname', 'photo']),
+            'action' => $this->action,
+            'activity_id' => $this->activity_id,
+        ]);
+    }
+
+    /**
+     * Get the broadcastable representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return BroadcastMessage
+     */
+    public function toBroadcast($notifiable)
+    {
+        $notifications = $notifiable->notifications();
+        return new BroadcastMessage([
+            'count' => $notifications->unpeeked()->count(),
+            'data' => $notifications->first(),
+        ]);
+    }
+}

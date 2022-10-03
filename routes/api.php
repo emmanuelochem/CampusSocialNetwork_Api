@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -126,6 +127,32 @@ Route::controller(ProfileController::class)
     Route::middleware('auth:api')->group(function(){
         Broadcast::routes();
     });
+
+
+    //Profile
+Route::controller(ChatController::class)
+->middleware('auth:api')
+->prefix('chats')
+->middleware('auth:api')
+->group(function() {
+    Route::get('/', 'chats');
+    Route::post('find', 'findUsersById');
+    Route::post('user/find', 'findChatUser');
+    Route::prefix('{chat}')
+        ->group(function() {
+            Route::get('/', 'messages');
+            Route::post('send', 'sendMessage');
+            Route::prefix('messages')
+                ->group(function() {
+                    Route::prefix('{message}')
+                        ->group(function() {
+                            Route::delete('delete', 'deleteMessage');
+//                    Route::post('like', 'messages')->name('messages');
+//                    Route::post('unlike', 'messages')->name('messages');
+                        });
+                });
+    });
+});
 
 //  User::with([
 //    'permissions' => function ($query) {
